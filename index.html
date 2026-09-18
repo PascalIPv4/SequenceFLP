@@ -106,38 +106,45 @@
   .game-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
   @media (max-width:960px){.game-layout{grid-template-columns:1fr;}}
   
-  .board-container{
-    width:100%;
-    max-width:680px;
-    margin:0 auto;
-  }
-  .board{
-    display:grid;
-    grid-template-columns:repeat(10,1fr);
-    grid-template-rows:repeat(10,1fr);
-    gap:4px;
-    background:var(--wood-dark);
-    padding:8px;
-    border-radius:12px;
-    border:6px solid var(--wood);
-    width:100%;
-    aspect-ratio:1 / 1;
-    box-sizing:border-box;
-  }
+  ./* CONTENEUR DU PLATEAU */
+.board-container {
+  width: 100%;
+  max-width: 600px; /* Limite la taille globale */
+  margin: 0 auto;
+}
 
-  /* CASES DU PLATEAU */
-  .cell{
-    position:relative;
-    background:var(--cream);
-    border-radius:4px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    user-select:none;
-    overflow:hidden;
-    box-shadow:inset 0 0 2px rgba(0,0,0,.2);
-  }
+/* GRILLE DU PLATEAU */
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 4px;
+  background: var(--wood-dark);
+  padding: 8px;
+  border-radius: 12px;
+  border: 6px solid var(--wood);
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Garantit un carré parfait 10x10 */
+  box-sizing: border-box;
+}
+
+/* CASES DU PLATEAU */
+.cell {
+  position: relative;
+  background: var(--cream);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 100%; /* Force la case à remplir exactement sa cellule de grille */
+  min-width: 0;
+  min-height: 0; /* Empêche le contenu d'agrandir la case */
+}
   .cell.corner{
     background:linear-gradient(135deg,#d4af37,#aa841c);
     color:var(--wood-dark);

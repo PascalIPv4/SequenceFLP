@@ -101,50 +101,47 @@
   .seat.empty:hover{background:rgba(255,255,255,.08);}
   .chip-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;}
 
-  /* GAME LAYOUT (TAILLE ET POSITION FIXE) */
+  /* GAME LAYOUT */
   #screen-game{max-width:1280px;width:100%;}
   .game-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
   @media (max-width:960px){.game-layout{grid-template-columns:1fr;}}
   
-  ./* CONTENEUR DU PLATEAU */
-.board-container {
-  width: 100%;
-  max-width: 600px; /* Limite la taille globale */
-  margin: 0 auto;
-}
+  .board-container{
+    width:100%;
+    max-width:600px;
+    margin:0 auto;
+  }
+  .board{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    grid-template-rows:repeat(10,1fr);
+    gap:4px;
+    background:var(--wood-dark);
+    padding:8px;
+    border-radius:12px;
+    border:6px solid var(--wood);
+    width:100%;
+    aspect-ratio:1 / 1;
+    box-sizing:border-box;
+  }
 
-/* GRILLE DU PLATEAU */
-.board {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(10, 1fr);
-  gap: 4px;
-  background: var(--wood-dark);
-  padding: 8px;
-  border-radius: 12px;
-  border: 6px solid var(--wood);
-  width: 100%;
-  aspect-ratio: 1 / 1; /* Garantit un carré parfait 10x10 */
-  box-sizing: border-box;
-}
-
-/* CASES DU PLATEAU */
-.cell {
-  position: relative;
-  background: var(--cream);
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  overflow: hidden;
-  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  height: 100%; /* Force la case à remplir exactement sa cellule de grille */
-  min-width: 0;
-  min-height: 0; /* Empêche le contenu d'agrandir la case */
-}
+  /* CASES DU PLATEAU */
+  .cell{
+    position:relative;
+    background:var(--cream);
+    border-radius:4px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    user-select:none;
+    overflow:hidden;
+    box-shadow:inset 0 0 2px rgba(0,0,0,.2);
+    width:100%;
+    height:100%;
+    min-width:0;
+    min-height:0;
+  }
   .cell.corner{
     background:linear-gradient(135deg,#d4af37,#aa841c);
     color:var(--wood-dark);
@@ -164,7 +161,6 @@
   .cell.red{color:var(--red);}
   .cell.black{color:var(--black);}
 
-  /* INTERACTIONS DU PLATEAU SANS RECADRAGE */
   .cell.playable{
     box-shadow:inset 0 0 0 3px var(--gold);
     cursor:pointer;
@@ -202,10 +198,10 @@
   .panel-box{background:var(--panel);border:1px solid rgba(205,164,52,.2);border-radius:12px;padding:14px 16px;}
   .turn-banner{font-family:'Fraunces';font-size:18px;text-align:center;padding:10px;border-radius:10px;background:rgba(0,0,0,.25);}
   .turn-banner.mine{background:rgba(205,164,52,.2);color:var(--gold);}
-  .seq-scores{display:flex;gap:10px;justify-content:center;margin-top:8px;}
+  .seq-scores{display:flex;gap:10px;justify-center:center;margin-top:8px;}
   .seq-pill{padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(0,0,0,.25);}
 
-  /* NOUVEAU DESIGN DE LA MAIN (LISIBILITÉ AMÉLIORÉE) */
+  /* MAIN DE CARTE */
   .hand{
     display:flex;
     gap:10px;
@@ -269,7 +265,7 @@
   .winner-card{background:var(--panel);border:2px solid var(--gold);border-radius:16px;padding:36px 44px;text-align:center;}
   .winner-card h2{font-size:30px;color:var(--gold);margin-bottom:10px;}
   .small{font-size:12px;color:rgba(243,234,217,.5);}
-  .top-bar{display:flex;justify-space-between;align-items:center;width:100%;max-width:1280px;padding:14px 16px 0;font-size:12.5px;color:rgba(243,234,217,.45);}
+  .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:1280px;padding:14px 16px 0;font-size:12.5px;color:rgba(243,234,217,.45);}
 </style>
 </head>
 <body>
@@ -399,17 +395,18 @@ function suitSymbol(s){ return {S:'♠',H:'♥',D:'♦',C:'♣'}[s]; }
 const CORNERS = new Set(['0-0','0-9','9-0','9-9']);
 function cellKey(r,c){ return r+'-'+c; }
 
+/* MATRICE OFFICIELLE SEQUENCE (10x10 STRICTE) */
 const BOARD_LAYOUT = [
-  ['FREE','4S','3S','2S','AS','AC','2C','3C','4C','FREE'],
-  ['4D','KS','5S','6S','7S','7C','6C','5C','KC','4H'],
-  ['3D','5D','QS','9S','8S','8C','9C','QC','5H','3H'],
-  ['2D','6D','9D','QD','10S','10C','QH','9H','6H','2H'],
-  ['AD','7D','8D','10D','KD','KH','10H','8H','7H','AH'],
-  ['AH','7H','8H','10H','KH','KD','10D','8D','7D','AD'],
-  ['2H','6H','9H','QH','10C','10S','QD','9D','6D','2D'],
-  ['3H','5H','QC','9C','8C','8S','9S','QS','5D','3D'],
-  ['4H','KC','5C','6C','7C','7S','6S','5S','KS','4D'],
-  ['FREE','4C','3C','2C','AC','AS','2S','3S','4S','FREE'],
+  ['FREE','6C','7C','8C','9C','10C','QC','KC','AC','FREE'],
+  ['5C','3H','2H','2S','3S','4S','5S','6S','7S','AC'],
+  ['4C','4H','10D','9D','8D','7D','6D','5D','8S','KC'],
+  ['3C','5H','QD','6C','5C','4C','3C','10H','9S','QC'],
+  ['2C','6H','KD','7C','2H','3H','2C','8H','10S','10C'],
+  ['AS','7H','AD','8C','10H','9H','AD','7H','QS','9C'],
+  ['KS','8H','2D','9C','6H','5H','KD','6H','KS','8C'],
+  ['QS','9H','3D','10C','AH','QH','QD','5H','AS','7C'],
+  ['10S','10H','4D','5D','6D','7D','8D','9D','2H','6C'],
+  ['FREE','AS','KS','QS','10S','9S','8S','7S','6S','FREE']
 ];
 
 function buildBoardCards(){
@@ -665,45 +662,49 @@ function currentSelectedCard(){
   return room.state.hands[myId]?.[selectedCardIdx] || null;
 }
 
+/* RENDU SÉCURISÉ DU PLATEAU */
 function renderBoard(){
   const boardDiv = document.getElementById('board');
-  boardDiv.innerHTML='';
-  const teamColors=['var(--team1)','var(--team2)','var(--team3)'];
+  boardDiv.innerHTML = '';
+  const teamColors = ['var(--team1)','var(--team2)','var(--team3)'];
   const card = currentSelectedCard();
   const canAct = isMyTurn();
 
-  for(let r=0;r<10;r++){
-    for(let c=0;c<10;c++){
+  for(let r = 0; r < 10; r++){
+    for(let c = 0; c < 10; c++){
       const cell = room.state.board[r][c];
-      const key = cellKey(r,c);
+      const key = cellKey(r, c);
       const div = document.createElement('div');
-      div.className='cell';
+      div.className = 'cell';
+
       const isCorner = CORNERS.has(key);
       if(isCorner){
         div.classList.add('corner');
-        div.textContent='★';
+        div.textContent = '★';
       } else {
         const rk = rankOf(cell.code);
         const st = suitSymbol(suitOf(cell.code));
         div.innerHTML = `<span class="b-rank">${rk}</span><span class="b-suit">${st}</span>`;
         div.classList.add(cardColor(cell.code));
       }
+
       if(cell.owner){
-        const chip=document.createElement('div');
-        chip.className='chip'+(room.state.lockedCells[key]?' locked':'');
-        chip.style.background = teamColors[cell.owner-1];
+        const chip = document.createElement('div');
+        chip.className = 'chip' + (room.state.lockedCells[key] ? ' locked' : '');
+        chip.style.background = teamColors[cell.owner - 1];
         div.appendChild(chip);
       }
+
       if(canAct && card){
         if(isTwoEyed(card) && !cell.owner && !isCorner){
           div.classList.add('playable');
-          div.onclick = ()=>submitMove({type:'place', r, c});
-        } else if(isOneEyed(card) && cell.owner && cell.owner!==myTeam() && !room.state.lockedCells[key]){
+          div.onclick = () => submitMove({type:'place', r, c});
+        } else if(isOneEyed(card) && cell.owner && cell.owner !== myTeam() && !room.state.lockedCells[key]){
           div.classList.add('removable');
-          div.onclick = ()=>submitMove({type:'remove', r, c});
-        } else if(!isJack(card) && !isCorner && !cell.owner && cell.code===card){
+          div.onclick = () => submitMove({type:'remove', r, c});
+        } else if(!isJack(card) && !isCorner && !cell.owner && cell.code === card){
           div.classList.add('playable');
-          div.onclick = ()=>submitMove({type:'place', r, c});
+          div.onclick = () => submitMove({type:'place', r, c});
         }
       }
       boardDiv.appendChild(div);
